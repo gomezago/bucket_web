@@ -1,0 +1,20 @@
+{% if user %}
+    <b>User Info: </b>{{ user}}<br>
+    <hr>
+    <a href="/bucket/thing/">Create Thing</a><br>
+    <b>Thing Id: </b>{{ thing_id }}<br>
+    <hr>
+    <a href="/bucket/prop/">Create Property</a><br>
+    <b>Property Id: </b>{{ property_id }}<br>
+    <hr>
+    <a href="/bucket/update/">Update Property</a><br>
+    <b>Updated :</b>{{ update }}<br>
+    <hr>
+    <a href="/bucket/read/">Read Property</a><br>
+    <b>Property Values :</b>{{ values }}<br>
+    <hr>
+    <a href="/bucket/logout/">Logout</a>
+
+    {% else %}
+    <a href="/bucket/login/">Login with Bucket</a>
+{% endif %}
