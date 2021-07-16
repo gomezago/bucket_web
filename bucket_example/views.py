@@ -1,44 +1,41 @@
 import json
 import requests
+import os
+import environ
 from django.shortcuts import render, redirect
 from authlib.integrations.django_client import OAuth
 
+env = environ.Env()
+environ.Env.read_env()
 
 
-OAUTH2_INTROSPECT_URL='https://dwd.tudelft.nl/oauth2/introspect'
-OAUTH2_TOKEN_URL='https://dwd.tudelft.nl/oauth2/token'
-OAUTH2_REVOKE_URL='https://dwd.tudelft.nl/oauth2/revoke'
-OAUTH2_AUTH_URL='https://dwd.tudelft.nl/oauth2/auth'
-OAUTH2_PROFILE_URL='https://dwd.tudelft.nl/userinfo'
 OAUTH2_REDIRECT_URL='http://localhost:8000/bucket/auth'
-
 CREATE_THING_URL = "https://dwd.tudelft.nl/bucket/api/things/"
-#CREATE_PROPERTY_URL = f'https://dwd.tudelft.nl/bucket/api/things/{thingId}/properties'
-#UPDATE_PROPERTY_URL = f'https://dwd.tudelft.nl/bucket/api/things/{thingId}/properties/{propertyId}'
+
 
 oauth = OAuth()
 #Register remote application on OAuth registry
 oauth.register(
     name='bucket',
 
-    access_token_url=OAUTH2_TOKEN_URL,
+    access_token_url=env('OAUTH2_TOKEN_URL'),
     access_token_params=None,
 
-    authorize_url=OAUTH2_AUTH_URL,
+    authorize_url=env('OAUTH2_AUTH_URL'),
     authorize_params=None,
 
-    userinfo_endpoint=OAUTH2_PROFILE_URL,
+    userinfo_endpoint=env('OAUTH2_PROFILE_URL'),
 
     client_kwargs={
-        'scope':'openid profile email offline dcd:things',
+        'scope':env('BUCKET_SCOPE'),
     },
     kwargs={
         'token_endpoint_auth_methods_supported': None,
         'grant_types_supported': ["refresh_token", "authorization_code"],
         'response_types_supported': ["id_token", "token", "code"],
-        'introspection_endpoint' : OAUTH2_INTROSPECT_URL,
-        'revocation_endpoint' : OAUTH2_REVOKE_URL,
-        'authorization_endpoint' : OAUTH2_AUTH_URL,
+        'introspection_endpoint' : env('OAUTH2_INTROSPECT_URL'),
+        'revocation_endpoint' : env('OAUTH2_REVOKE_URL'),
+        'authorization_endpoint' : env('OAUTH2_AUTH_URL'),
     }
 )
 
@@ -56,7 +53,7 @@ def bucket_login(request):
 def auth(request):
     token = oauth.bucket.authorize_access_token(request)
 
-    resp = oauth.bucket.get(OAUTH2_PROFILE_URL, token=token)
+    resp = oauth.bucket.get(env('OAUTH2_PROFILE_URL'), token=token)
     resp.raise_for_status()
     profile = resp.json()
 
